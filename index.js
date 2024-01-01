@@ -58,7 +58,7 @@ Deno.serve(async (request) => {
                                 window.requestSucceeded = false;
                                 window.errorJSON = JSON.stringify({
                                     error: "Impossibile recuperare l'URL della stream.",
-                                    info: err
+                                    info: specifiedURL
                                 });
                                 window.errorStatus = 500;
                             });
