@@ -65,7 +65,13 @@ Deno.serve(async (request) => {
                 };
 
                 if (requestSucceeded) {
-                    return Response.redirect(redirectURL);
+                    return new Response(null, {
+                        status: 302,
+                        headers: {
+                            ...headers,
+                            "location": redirectURL
+                        }
+                    });
                 } else {
                     return new Response(errorJSON, returnErrorHeaders(errorStatus));
                 };
