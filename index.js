@@ -52,11 +52,11 @@ Deno.serve(async (request) => {
                         await fetch(`${specifiedURL}&output=62`)
                             .then(response => response.json())
                             .then(json => {
-                                window.requestSucceeded = true;
-                                window.redirectURL = json.video[0];
+                                window.requestStatus = "redirect";
+                                window.response = json.video[0];
                             })
                             .catch(err => {
-                                window.requestSucceeded = false;
+                                window.requestStatus = false;
                                 window.errorJSON = JSON.stringify({
                                     error: "Impossibile recuperare l'URL della stream.",
                                     info: specifiedURL
@@ -68,12 +68,16 @@ Deno.serve(async (request) => {
                     case "dailymotion":
                         await fetch(specifiedURL.replaceAll("/video/", "/player/metadata/video/"))
                             .then(response => response.json())
-                            .then(json => {
-                                window.requestSucceeded = true;
-                                window.redirectURL = json.qualities.auto[0].url;
+                            .then(async (json) => {
+                                await fetch(json.qualities.auto[0].url)
+                                    .then(response => response.text())
+                                    .then(playlist => {
+                                        window.requestStatus = "hls";
+                                        window.response = playlist;
+                                    });
                             })
                             .catch(err => {
-                                window.requestSucceeded = false;
+                                window.requestStatus = false;
                                 window.errorJSON = JSON.stringify({
                                     error: "Impossibile recuperare l'URL della stream.",
                                     info: specifiedURL
@@ -83,12 +87,20 @@ Deno.serve(async (request) => {
                         break;
                 };
 
-                if (requestSucceeded) {
+                if (requestStatus === "redirect") {
                     return new Response(null, {
                         status: 302,
                         headers: {
                             ...headers,
-                            "location": redirectURL
+                            "location": response
+                        }
+                    });
+                } else if (requestStatus === "hls") {
+                    return new Response(response, {
+                        status: 200,
+                        headers: {
+                            ...headers,
+                            "Content-Type": "application/vnd.apple.mpegurl"
                         }
                     });
                 } else {
