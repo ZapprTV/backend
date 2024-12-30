@@ -15,7 +15,8 @@ Deno.serve(async (request) => {
     // https://uibakery.io/regex-library/url
     const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
     const supportedURLRegexes = {
-        rai: /^https?:\/\/mediapolis.rai.it\/relinker\/relinkerServlet.htm\?cont=[0-9]{1,}$/g
+        rai: /^https?:\/\/mediapolis.rai.it\/relinker\/relinkerServlet.htm\?cont=[0-9]{1,}$/g,
+        dailymotion: /^https?:\/\/(?:www\.)?dailymotion\.com\/video\/[a-zA-Z0-9]+$/g
     };
     const requestURL = new URL(request.url);
     const specifiedURL = requestURL.search.slice(1);
@@ -62,6 +63,24 @@ Deno.serve(async (request) => {
                                 });
                                 window.errorStatus = 500;
                             });
+                        break;
+
+                    case "dailymotion":
+                        await fetch(specifiedURL.replaceAll("/video/", "/player/metadata/video/"))
+                            .then(response => response.json())
+                            .then(json => {
+                                window.requestSucceeded = true;
+                                window.redirectURL = json.qualities.auto[0].url;
+                            })
+                            .catch(err => {
+                                window.requestSucceeded = false;
+                                window.errorJSON = JSON.stringify({
+                                    error: "Impossibile recuperare l'URL della stream.",
+                                    info: specifiedURL
+                                });
+                                window.errorStatus = 500;
+                            });
+                        break;
                 };
 
                 if (requestSucceeded) {
