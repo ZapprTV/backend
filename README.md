@@ -1,10 +1,10 @@
-Il backend/API di Zappr, per far riprodurre al [frontend](https://github.com/ZapprTV/frontend) i canali Rai. Forse in futuro servirà anche per altri canali, ma per adesso funziona solo per gli URL dei canali Rai. 
+Il backend/API di Zappr, per far riprodurre al [frontend](https://github.com/ZapprTV/frontend) i canali Rai non protetti da geoblocking (Rai News 24 e Rai Sport) e quelli trasmessi su Dailymotion. Forse in futuro servirà anche per altri canali.
 
 Questa API usa Deno, sia per il codice che per il deploying, che avviene su [Deno Deploy](https://deno.com/deploy). È ospitata su [api.zappr.stream](https://api.zappr.stream).
 
 L'unico endpoint è `/`, e prende come unico parametro, tramite query string, l'URL che si vuole "trasformare".
 
-Come già detto, per adesso supporta solo gli URL dei canali Rai (mediapolis.rai.it), in questo formato specifico: `https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=XXXXXXX`. Se l'URL ha il parametro `&output` alla fine, non verrà accettato e verrà restituito un errore.
+Supporta gli URL dei canali Rai menzionati in precedenza e di video Dailymotion, nei formati `https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=XXXXXXX` (**senza** il parametro `&output`!) e `https://www.dailymotion.com/video/XXXXXXX`.
 
 Ecco quindi un esempio di richiesta all'API, con l'URL di Rai News 24:<br>
 `https://api.zappr.stream/?https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=1`
